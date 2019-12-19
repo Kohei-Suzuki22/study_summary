@@ -1,0 +1,35 @@
+git flow
+
+
+  master
+
+  develop
+
+    トピックブランチ
+
+    hotfixes
+
+    rerease
+
+commit -m
+
+commit --amend
+
+
+
+rebase と merge
+
+mergeの時は no-fast-forwardを使う。
+
+
+公開鍵の作成
+
+
+git stashにより現在commit,ステージしていない状況を保持する。
+
+
+fetchとpullの違い。
+
+・リモート追跡ブランチ
+・リモートブランチ
+・ローカルブランチ

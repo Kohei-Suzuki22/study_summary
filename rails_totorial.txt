@@ -1,0 +1,153 @@
+header
+
+  <!--[if lt IE 9]>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js">
+  </script>
+  <![endif]-->
+
+  をつける。 IEでのブラウザの挙動がHTML5に対応していない可能性があるから、それを修正するためのコード。
+
+
+Bcrypt
+
+  BCrypt::Password.create(string, cost: 4)
+  → stringをハッシュ化する。 ハッシュ化にかかる回数は4回
+
+  BCrypt::Password.new(password_digest) == password_token
+              ↓ 同じ
+  BCrypt::Password.new(password_digest).is_password?(remember_token)
+
+  → ハッシュ化したものをハッシュ前のトークンと同じものになるか比較
+
+
+SecureRandom.urlsafe_base64
+
+  → A-Z,a-z,0-9, "-", "_"の62種類のいずれかの文字からなる長さ22のランダムな文字列を返す。
+
+  ※これはあくまでも文字列なので、これをハッシュ化するとより強固で一意になる。
+
+
+update_attributeとupdate_attributesの違い
+
+  ・update_attribute
+      バリデーションを通さない。
+      1つの値を更新する。
+
+      update_attribute(:param, "value")
+
+  ・update_attributes
+      バリデーションを通す。
+      複数の値を更新する。
+      ※updateメソッドと同じ。
+
+  ・update_columns
+     →update_attributeを複数まとめてやるときに使う。
+     バリデーションを通さない。
+
+     update_columns(name:"", email: "")
+
+cookie
+
+  ・ページが変わっても値を保持したいときに使う。
+
+  例
+    ・cookies[:foo] = "value"
+    ・cookies[:foo] = {value: "ddd", expires: x.years.from_new.utc}   ※ xには有効期限を数値で入れる。
+    ・cookies.permanent[:value] = "value"  ※ expiresで20年を指定したのと同じ。
+
+
+  ・cookies.signed[:user_id] = user.id
+
+    →署名付きのcookie アカウントが奪われないように。
+
+  ・cookies.delete(:value) : クッキーから指定の値を削除
+
+
+リクエスト PUTとPATCHの違い
+
+  ・PUT
+      リソースそのものを更新するリクエスト
+  ・PATCH
+      リソースを部分的に更新する。
+
+  PUTよりPACTHをよく使う。
+
+
+target="_blank"のセキュリティ上の脆弱性を避ける。
+
+  ・rel="noopener" を使う。
+    → これがないと、リンク元ページを操作することが出来てしまうから、セキュリティ上の問題になる。
+
+
+
+has_secure_password と validates :password, presence: true の重複を避ける
+
+  ・validates :password, presence: true, allow_nil: true を使う。
+
+
+フィルタリング before_actionなどで、特定の処理に対して指定のurlへページを飛ばすときに、
+実際にリクエストされたページへのフレンドリーフォワーディングを作成しておくことで、フィルタリングを解決したときに、
+そのページへ飛ばすことが出来る。
+
+  session[:fowarding_url] = request.original_url if request.get? でリクエスト先のurlを保持できる。
+
+  fallback_location " path  " もある。 これは前のurlにリダイレクトしたいときに使う。
+  "path"で指定しているのは、前のurlが見つからなかったときに"path"で指定したリソースへ飛ぶ。
+
+
+
+・疑似的に複数ユーザーの名前を生成したいとき
+
+  ・fakerを使うと便利。
+
+
+
+引数の文字列をメソッドとして引数に渡す。 → sendメソッド
+
+  attribute = :activation
+  user.send("#{attribute}_digest")
+            ↓
+  user.activation_digest を実行するのと同じになる。
+
+
+モデルの複数要素を管理するとき、
+
+  ・default_scope -> {order(created_at: :desc)} で並べ方のデフォルトを設定できる。
+  ・scope :recent, -> {order(id: :desc).limit}
+    → これをモデルに対して使うことで、指定した順番のスコープを渡すことが出来る。
+
+
+viewにおいて
+
+  ・  <%= render @microposts %> と指定すると、 app/views/microposts/_micropost.html.erbを埋め込むことになる。
+  ・ helperメソッド time_ago_in_words() を使うと引数に指定した時間帯と、現在の時間帯の相対的な表現ができる。
+
+    例 3.times.ago → 3日前など。
+
+routesにおいて
+
+  ・子要素に対して、collection を使う。
+
+    → /users/tigers
+
+  ・子要素に対して、member を使う。
+
+    → /users/1/tigers
+
+Ajaxを使う。
+
+  → ページを移動することなく、サーバーへリクエストを送信できる。
+  → ページを更新せずに、DOMの要素を変更前と変更後で交換するもの。
+
+課題点
+・slimなどを使える。
+・もっとリファクタリングできる。
+・本番環境の知識に弱い
+  herokuやAWS, など。もっと何をやっているのかの根本を理解する必要がある。
+
+追加要素
+・ゲストとしてログイン
+・websocketを使った、一対一のチャット機能。
+・動画投稿機能
+・ユーザーの検索機能
+・micropostに対するいいねの数の週間ランキングを表示機能。
